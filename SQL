@@ -1,0 +1,8 @@
+SELECT * FROM INHABITANT
+WHERE  state = "friendly"
+and job = "weaponsmith" 
+job LIKE "%SMITH" 
+SELECT personid FROM INHABITANT  WHERE name LIKE "Stranger" and personid = "20"
+SELECT gold FROM INHABITANT WHERE name LIKE "Stranger" 
+SELECT * FROM ITEM WHERE owner IS null
+UPDATE item SET owner = 20 WHERE owner is null
