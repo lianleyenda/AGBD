@@ -20,3 +20,93 @@ ON i.personid = v.chief WHERE v.name = "Onionville"
 SELECT COUNT(*) FROM inhabitant, village WHERE village.villageid = inhabitant.villageid AND village.name = 'Onionville'
 SELECT COUNT(*) FROM inhabitant INNER JOIN village ON village.villageid = inhabitant.villageid WHERE inhabitant.gender = 'f' AND village.name = 'Onionville'
  problema del nombre de la mujer
+
+select * from crime_scene_report
+where type ="murder" and city like "sql city" and date = 20180115
+select * from person  where name like "Annabel%" and address_street_name like "Franklin Ave"
+select * from drivers_license where id = "490173"
+select * from get_fit_now_member where person_id = 16371 
+select * from interview where person_id = 16371
+select * from facebook_event_checkin where person_id = 16371
+select * from person p
+inner join get_fit_now_member g            
+on p.id = g.person_id where p.id = 16371
+select * from get_fit_now_member m
+inner join get_fit_now_check_in g            
+on m.id = g.membership_id where m.id = 90081             
+select * from person where address_street_name like  "Northwestern Dr" order by address_number desc
+select * from person p 
+inner join interview i
+on p.id = i.person_id where p.id = 14887
+select * from get_fit_now_check_in where membership_id like "48Z%"
+select * from drivers_license d 
+inner join person p
+on d.id = p.license_id where d.id = 183779
+select * from person where name like "Maxine Whitely"
+select * from get_fit_now_check_in where membership_id like "48Z%" and check_in_date = 20180109
+select * from get_fit_now_check_in c 
+inner join get_fit_now_member m
+on c.membership_id = m.id where c.membership_id like "48Z7A" 
+select * from person where name like "Joe Germuska" 
+select * from get_fit_now_member where id like "48Z%" order by membership_start_date desc
+ select * from get_fit_now_member where id like "48Z%" 
+order by membership_start_date asc
+limit  1              
+  select * from get_fit_now_member i 
+inner  join person p
+on i.person_id = p.id 
+inner join drivers_license d
+on d.id = p.license_id 
+inner join interview n
+on n.person_id = p.id
+where i.person_id = 67318 and p.license
+              
+
+
+
+                          
+
+
+
+                           
+              
+
+
+
+                           
+              
+
+
+
+              
+              
+              
+
+
+
+              
+
+
+              
+
+
+              
+
+
+
+
+
+              
+              
+
+
+
+              
+
+
+              
+              
+
+
+
+              
