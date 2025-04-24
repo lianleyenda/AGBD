@@ -116,3 +116,103 @@ FROM film f
 INNER JOIN inventory i on f.film_id = i.film_id 
 INNER JOIN rental r on  i.inventory_id = r.inventory_id
 WHERE f.title = 'ALABAMA DEVIL'
+
+
+--Ejercicio 13
+
+SELECT f.title, f.length, c.name FROM film f 
+INNER JOIN film_category fc
+on f.film_id = fc.film_id
+INNER JOIN category c
+on fc.category_id = c.category_id
+ORDER by f.rental_duration DESC 
+
+
+--Ejercicio 14
+
+SELECT f.title, count(fc.actor_id) as num_actor  FROM film f 
+INNER JOIN film_actor fc
+on f.film_id = fc.film_id
+WHERE f.title like "w%"
+GROUP by fc.actor_id 
+HAVING num_actor >= 5
+
+--Ejercicio 15
+SELECT count(p.amount) as suma_total, c.first_name, c.last_name  FROM payment p
+INNER JOIN customer c
+on p.customer_id = c.customer_id
+GROUP by c.first_name
+
+--Ejercicio 16
+SELECT f.title, a.first_name, f.length  FROM film f 
+INNER JOIN film_actor fc
+on f.film_id = fc.film_id
+INNER JOIN actor a
+on a.actor_id = fc.actor_id
+WHERE f.length < 47
+
+--Ejercicio 17
+SELECT c.last_name, ci.city, co.country, a.address, r.rental_date, sum(p.amount) as pagos  FROM customer c
+INNER JOIN address a
+on a.address_id = c.address_id
+INNER JOIN city ci
+on ci.city_id = a.city_id
+INNER JOIN country co
+on co.country_id = ci.country_id
+INNER JOIN rental r
+on r.customer_id = c.customer_id
+INNER JOIN payment p
+on p.rental_id = r.rental_id
+GROUP by c.last_name
+ORDER by pagos ASC
+
+--Ejercicio 18
+INSERT INTO actor(actor_id,first_name,last_name,last_update)
+VALUES(201,'Lian','Leyenda','2025-04-24 10:53:57')
+
+--Ejercicio 19
+INSERT INTO actor(actor_id,first_name,last_name,last_update)
+VALUES(202,"Larri","Capija","2025-12-23 03:18:19"),(203,"Elver", "Gacorta", "2025-10-01 09:13:39")
+
+
+
+--Ejercicio 20
+UPDATE actor
+SET first_name = "Guillermo", last_name = "Francella", last_update = "2025-04-24 18:52:227"
+WHERE actor_id = 201  
+UPDATE actor
+SET first_name = "Guillermo", last_name = "Novellis", last_update = "2025-06-24 11:50:22"
+WHERE actor_id = 202 
+UPDATE actor
+SET first_name = "Leo", last_name = "Matteoli", last_update = "2025-08-27 10:20:28"
+WHERE actor_id = 203  
+
+
+--Ejercicio 21
+DELETE FROM actor
+WHERE actor_id = 203  
+DELETE FROM actor
+WHERE actor_id = 202
+DELETE FROM actor
+WHERE actor_id = 201
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
