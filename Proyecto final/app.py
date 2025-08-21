@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 
 
+
 #crea la conxion
 def get_db():
     conn = mysql.connector.connect(**data)
@@ -34,7 +35,7 @@ def agregar():
     data = request.get_json()#Le envia el request en formato json
     db = get_db()
     cursor = db.cursor()# el cursor es para ejecutar mejor las sentencias de sql 
-    cursor.execute(   'INSERT INTO Stock (Producto, Cantidad) VALUES (?, ?)',
+    cursor.execute(   'INSERT INTO Stock (Producto, Cantidad) VALUES (%s, %s)',
         (data['Producto'], data['Cantidad']))
     
     db.commit()#para guardar los cambios
@@ -44,7 +45,7 @@ def agregar():
 @app.route('/stock/<int:stock_id>', methods=['DELETE'])
 def eliminar_stock(stock_id):
     db = get_db()
-    cursor = db.execute('DELETE FROM Stock WHERE id_Stock = ?', (stock_id,))
+    cursor = db.execute('DELETE FROM Stock WHERE id_Stock = %s', (stock_id,))
     db.commit()  # Guardar cambios en la base de datos
 
     if cursor.rowcount == 0:
@@ -72,7 +73,7 @@ def modificar_stock(stock_id):
 
     db = get_db()
     cursor = db.execute(
-        'UPDATE Stock SET cantidad = ? WHERE id_Stock = ?',
+        'UPDATE Stock SET cantidad = %s WHERE id_Stock = %s',
         (nueva_cantidad, stock_id)
     )
     db.commit()
@@ -94,16 +95,58 @@ def registrar_usuario():
 
    nombre = data['Usuario']
    email = data['Email']
-   password = ['Password']
+   password = data['Password']
 
    db = get_db()
    
    cursor = db.cursor()
-   cursor.execute('INSERT INTO usuarios (Usuario, Email, Password) VALUES (?, ?, ?)',
+   cursor.execute('INSERT INTO Usuarios (Usuario, Email, Password) VALUES (%s, %s, %s)',
                       (nombre, email, password))
    db.commit()
     
-   return {'mensaje': 'El email ya está registrado'}, 400
+   return {'mensaje': 'El email se registro registrado'}, 400
+
+
+
+@app.route('/inicio', methods=['POST'])
+def inicio():
+   data = request.get_json()
+
+
+   if not data or 'Email' not in data or 'Password' not in data:
+       return {'mensaje': 'Faltan datos'}, 400
+
+
+   email = data['Email']
+   password = data['Password']
+
+
+   db = get_db()
+   cursor = db.cursor(dictionary=True)
+# Usamos diccionario=True para acceder a los campos por nombre en lugar de por índice
+# Sin esto, el cursor devuelve tuplas y habría que usar usuario[0], usuario[1], etc.
+
+
+
+
+   cursor.execute("SELECT * FROM Usuarios WHERE Email = %s AND Password = %s", (email, password))
+   usuario = cursor.fetchone()
+
+
+   cursor.close()
+   db.close()
+
+
+   if usuario:
+       return {'mensaje': 'Inicio de sesión exitoso', 'usuario': usuario}, 200
+   else:
+       return {'mensaje': 'Email o contraseña incorrectos'}, 401
+
+
+
+
+
+
 
 
 
