@@ -1,24 +1,14 @@
-import sqlite3
+import mysql.connector
 from flask import Flask, g, request, jsonify
 
 app = Flask(__name__)
-app.config['DATABASE'] = 'hamburgueseria.db'
 
+
+
+#crea la conxion
 def get_db():
-    if 'db' not in g:
-        g.db = sqlite3.connect(
-            app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row  # devuelve filas como diccionarios
-    return g.db
-
-# Cierra la conexión cuando termina la petición
-def close_db(e=None):
-    db = g.pop('db', None)
-
-    if db is not None:
-        db.close()
+    conn = mysql.connector.connect(**data)
+    return conn
 
 
 
@@ -26,11 +16,13 @@ def close_db(e=None):
 
 @app.route('/stock', methods=['GET'])
 def listar_usuarios():
-    db = get_db()
-    resultado = db.execute('SELECT * FROM Stock').fetchall()
-    return {
-        'Stock': [dict(row) for row in resultado]
-    }
+ db = get_db()
+ cursor = db.cursor(dictionary=True)  # dictionary=True para obtener diccionarios
+ cursor.execute('SELECT * FROM Stock')
+ resultado = cursor.fetchall()
+ return jsonify({'Stock': resultado})
+   
+
 
 if __name__ == '__main__':
     app.run(debug=True)
@@ -89,6 +81,30 @@ def modificar_stock(stock_id):
         return {'mensaje': 'No se encontró el registro'}, 404
 
     return {'mensaje': f'Stock con ID {stock_id} actualizado correctamente'}
+
+
+
+
+@app.route('/registro', methods=['POST'])
+def registrar_usuario():
+   data = request.get_json()
+   if not data or 'Usuario' not in data or 'Email' not in data or 'Password' not in data:
+       return {'mensaje': 'Faltan datos'}, 400
+
+
+   nombre = data['Usuario']
+   email = data['Email']
+   password = ['Password']
+
+   db = get_db()
+   
+   cursor = db.cursor()
+   cursor.execute('INSERT INTO usuarios (Usuario, Email, Password) VALUES (?, ?, ?)',
+                      (nombre, email, password))
+   db.commit()
+    
+   return {'mensaje': 'El email ya está registrado'}, 400
+
 
 
 
