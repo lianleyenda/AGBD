@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 
 
+
 #crea la conxion
 def get_db():
     conn = mysql.connector.connect(**data)
@@ -16,13 +17,13 @@ def get_db():
 
 
 
-@app.route('/stock', methods=['GET'])
+@app.route('/menu', methods=['GET'])
 def listar_usuarios():
  db = get_db()
  cursor = db.cursor(dictionary=True)  # dictionary=True para obtener diccionarios
- cursor.execute('SELECT * FROM Stock')
+ cursor.execute('SELECT * FROM Productos')
  resultado = cursor.fetchall()
- return jsonify({'Stock': resultado})
+ return jsonify({'Productos': resultado})
    
 
 
@@ -146,37 +147,74 @@ def inicio():
 
 
 
+
 @app.route('/inicio/cambiar/<int:id_Usuarios>', methods=['PUT'])
 def modificar(id_Usuarios):
     data = request.get_json()
     if not data:
-        return {'mensaje': 'Faltan llenar Usuario, Password o Email'}, 400
+        return {'mensaje': 'No se enviaron datos'}, 400
 
-    mod_Usuario = data['Usuario']
-    mod__Password = data['Password']
-    mod_Email = data['Email']
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
 
-    db = get_db()  # ejecutar la función
-    cursor = db.cursor()
+    # Primero obtenemos los valores actuales de la fila
+    cursor.execute('SELECT Usuario, Email, Password FROM Usuarios WHERE id_usuarios = %s', (id_Usuarios,))
+    fila = cursor.fetchone()
+    if not fila:
+        cursor.close()
+        return {'mensaje': 'No se encuentra el usuario'}, 404
+
+    # Si no se envía un campo, se mantiene el valor actual
+    mod_Usuario = data.get('Usuario', fila['Usuario'])
+    mod_Email = data.get('Email', fila['Email'])
+    mod_Password = data.get('Password', fila['Password'])
+
+    # Ahora ejecutamos la consulta UPDATE fija
     cursor.execute(
         'UPDATE Usuarios SET Usuario = %s, Email = %s, Password = %s WHERE id_usuarios = %s',
-        (mod_Usuario, mod_Email, mod__Password, id_Usuarios)
+        (mod_Usuario, mod_Email, mod_Password, id_Usuarios)
     )
     db.commit()
+    cursor.close()
 
-    if cursor.rowcount == 0:
-        cursor.close()
-        return {'mensaje': 'No se encuentra tu sesión'}, 404  
+    if fila['Usuario'] != mod_Usuario and fila['Password'] != mod_Password and fila['Email'] != mod_Email:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió Usuario, Email y Password correctamente'}, 200
 
-    return {'mensaje': f'Usuario con ID {id_Usuarios} actualizado correctamente: {mod_Usuario}, {mod__Password}, {mod_Email}'}
+    if fila['Usuario'] != mod_Usuario and fila['Password'] != mod_Password:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió Usuario y Password correctamente'}, 200
+
+    if fila['Usuario'] != mod_Usuario and fila['Email'] != mod_Email:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió Usuario y Email correctamente'}, 200
+
+    if fila['Password'] != mod_Password and fila['Email'] != mod_Email:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió Password y Email correctamente'}, 200
+
+    if fila['Usuario'] != mod_Usuario:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió su Usuario correctamente a: {mod_Usuario}'}, 200
+
+    if fila['Password'] != mod_Password:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió su Password correctamente'}, 200
+
+    if fila['Email'] != mod_Email:
+        return {'mensaje': f'Usuario con ID {id_Usuarios} cambió su Email correctamente a: {mod_Email}'}, 200
+
+    return {'mensaje': 'No se hicieron cambios'}, 200
 
 
 
 
-
-
-
-
+@app.route('/inicio/borrar/<int:id_usuarios>', methods=['DELETE'])
+def borrar_cuenta(id_usuarios):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM Usuarios WHERE id_usuarios = %s', (id_usuarios,))
+    db.commit()
+    filas_afectadas = cursor.rowcount
+    cursor.close()
+    db.close()
+    if filas_afectadas == 0:
+        return {'mensaje': 'No se encontró el usuario'}, 404
+    return {'mensaje': f'Usuario con ID {id_usuarios} eliminado correctamente'}, 200
 
 
 
